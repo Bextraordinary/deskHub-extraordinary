@@ -123,44 +123,36 @@ function drawBoard() {
     ctx.fillStyle = اخضر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = احمر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = ازرق; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
+// رسم القطع
+for(let p=0; p<4; p++) {
+   for(let i=0; i<4; i++) {
+      let piece = pieces[p][i];
+      let x, y;
 
-    // رسم القطع
-    for(let p=0; p<4; p++) {
-    for(let i=0; i<4; i++) {
-        let piece = pieces[p][i];
-        let x, y;
+      if(piece.pos === -1) {
+         // في البيت
+         x = homeBases[p][i].x * s + s/2;
+         y = homeBases[p][i].y * s + s/2;
+      } else if(piece.pos >= 100) {
+         // وصل النهاية
+         x = endBases[p][piece.pos-100].x * s + s/2;
+         y = endBases[p][piece.pos-100].y * s + s/2;
+      } else {
+         // في المسار - مؤقتاً في البيت
+         x = homeBases[p][i].x * s + s/2;
+         y = homeBases[p][i].y * s + s/2;
+      }
 
-        if(piece.pos === -1) {
-            // القطعة في البيت
-            x = homeBases[p][i].x * s;
-            y = homeBases[p][i].y * s;
-        } else if(piece.pos >= 100) {
-      
-                // القطعة وصلت النهاية
-    x = endBases[p][piece.pos-100].x * s + s/2;
-    y = endBases[p][piece.pos-100].y * s + s/2;
-} else {
-    // في المسار - مؤقتاً نخليها في البيت
-    x = homeBases[p][i].x * s + s/2;
-    y = homeBases[p][i].y * s + s/2;
+      // رسم القطعة الملونة
+      ctx.fillStyle = colors[p];
+      ctx.beginPath();
+      ctx.arc(x, y, 12, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+   }
     }
-
-            // رسم القطعة الملونة 👇
-            ctx.fillStyle = colors[p];
-            ctx.beginPath();
-            ctx.arc(x, y, 12, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-         }
-          }
-
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
         // إطار أصفر للقطعة الممكن تتحرك
         if(p === currentPlayer && canMove(p, i)) {
             ctx.strokeStyle = '#fbbf24';
