@@ -136,11 +136,14 @@ function drawBoard() {
             y = homeBases[p][i].y * s;
         } else if(piece.pos >= 100) {
       
-            if(piece.pos === -1) {
-               // في البيت
-               x = homeBases[p][i].x * s + s/2;
-               y = homeBases[p][i].y * s + s/2;
-            } else {
+                // القطعة وصلت النهاية
+    x = endBases[p][piece.pos-100].x * s + s/2;
+    y = endBases[p][piece.pos-100].y * s + s/2;
+} else {
+    // في المسار - مؤقتاً نخليها في البيت
+    x = homeBases[p][i].x * s + s/2;
+    y = homeBases[p][i].y * s + s/2;
+        }
                // مسار مؤقت - خليها في البيت لحدي ما نكمل المسار
                x = homeBases[p][i].x * s + s/2;
                y = homeBases[p][i].y * s + s/2;
