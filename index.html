@@ -30,7 +30,6 @@
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const rollBtn = document.getElementById('rollBtn');
-// الترتيب زي الصورة: 0=أزرق, 1=أصفر, 2=أحمر, 3=أخضر
 const colors = ['#2563eb', '#ca8a04', '#dc2626', '#16a34a'];
 const players = ['أزرق', 'أصفر', 'أحمر', 'أخضر'];
 const s = 30;
@@ -45,32 +44,25 @@ const homeBases = [[{x:1.5,y:1.5},{x:4.5,y:1.5},{x:1.5,y:4.5},{x:4.5,y:4.5}],[{x
 let pieces = [[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}]];
 function drawBoard() {
     ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 450, 450);
-    // البيوت الأربعة كاملة - أزرق, أصفر, أحمر, أخضر
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(0, 0, 6*s);
-    ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s, 6*s);
+    // البيوت الأربعة - دي السطور اللي صلحتها
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(0, 0, 6*s, 6*s);
+    ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s);
     ctx.fillStyle = '#dc2626'; ctx.fillRect(0, 9*s, 6*s);
-    ctx.fillStyle = '#16a34a'; ctx.fillRect(9*s, 9*s, 6*s, 6*s);
-
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(9*s, 6*s, 6*s);
     ctx.fillStyle = '#e5e7eb'; mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
     for(let p=0; p<4; p++) { ctx.fillStyle = colors[p]; homePaths[p].forEach(pos => ctx.fillRect(pos.x*s, pos.y*s, s, s)); }
-
     ctx.fillStyle = '#2563eb'; ctx.fillRect(1*s, 6*s, s, s);
     ctx.fillStyle = '#ca8a04'; ctx.fillRect(8*s, 1*s, s, s);
     ctx.fillStyle = '#dc2626'; ctx.fillRect(6*s, 13*s, s, s);
     ctx.fillStyle = '#16a34a'; ctx.fillRect(13*s, 8*s, s, s);
-
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
     for(let i = 0; i <= 15; i++) { ctx.beginPath(); ctx.moveTo(i*s, 0); ctx.lineTo(i*s, 450); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i*s); ctx.lineTo(450, i*s); ctx.stroke(); }
-
     safeSpots.forEach(pos => { let p = mainPath[pos]; ctx.fillStyle = '#374151'; ctx.beginPath(); ctx.arc(p.x*s+s/2, p.y*s+s/2, 9, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = 'white'; ctx.font = 'bold 16px Arial'; ctx.fillText('★', p.x*s+s/2-6, p.y*s+s/2+6); });
-
     ctx.fillStyle = '#ca8a04'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill();
     ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
-
     ctx.fillStyle = 'white'; homeBases.forEach(base => { base.forEach(b => { ctx.beginPath(); ctx.arc(b.x*s, b.y*s, 14, 0, 2*Math.PI); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke(); }); });
-
     for(let p=0; p<4; p++) { for(let i=0; i<4; i++) { let piece = pieces[p][i]; let x, y; if(piece.pos === -1) { x = homeBases[p][i].x * s; y = homeBases[p][i].y * s; } else if(piece.pos >= 100) { let homeIdx = piece.pos - 100; x = homePaths[p][homeIdx].x * s + s/2; y = homePaths[p][homeIdx].y * s + s/2; } else { let pos = (startPos[p] + piece.pos) % 52; x = mainPath[pos].x * s + s/2; y = mainPath[pos].y * s + s/2; } ctx.fillStyle = colors[p]; ctx.beginPath(); ctx.arc(x, y, 10, 0, 2*Math.PI); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke(); if(p === currentPlayer && canMove(p, i)) { ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 4; ctx.stroke(); } } }
 }
 function canMove(player, pieceIdx) { if(diceValue === 0) return false; let piece = pieces[player][pieceIdx]; if(piece.pos === -1) return diceValue === 6; if(piece.pos >= 100) return piece.pos - 100 + diceValue < 6; return true; }
