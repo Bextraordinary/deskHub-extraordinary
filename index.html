@@ -151,26 +151,32 @@ function drawBoard() {
                 x = homeBases[p][i].x * s;
                 y = homeBases[p][i].y * s;
             }
-            else if(piece.pos >= 100) {
-                let homeIdx = piece.pos - 100;
-                x = homePaths[p][homeIdx].x * s + s/2;
-                y = homePaths[p][homeIdx].y * s + s/2;
-            } else {
-    ctx.fillStyle = colors[p];
-    ctx.beginPath();
-    ctx.arc(x, y, 10, 0, 2*Math.PI);
-    ctx.fill();
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1;
+            if(piece.pos === -1) {
+    x = homeBases[p][i].x * s;
+    y = homeBases[p][i].y * s;
+} else if(piece.pos >= 100) {
+    let homeIdx = piece.pos - 100;
+    x = homePaths[p][homeIdx].x * s;
+    y = homePaths[p][homeIdx].y * s;
+} else {
+    // احداثيات القطع الفي الشارع - عدلها حسب كودك
+    x =...
+    y =...
+}
+
+// ارسم القطعة هنا برة عشان تترسم في كل الحالات
+ctx.fillStyle = colors[p];
+ctx.beginPath();
+ctx.arc(x, y, 10, 0, 2*Math.PI);
+ctx.fill();
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 1;
+ctx.stroke();
+if(p === currentPlayer && canMove(p, i)) {
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 4;
     ctx.stroke();
-    if(p === currentPlayer && canMove(p, i)) {
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-    }
-            }
-        }
-    }
+}
 }
 
 function canMove(player, pieceIdx) {
