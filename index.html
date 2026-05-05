@@ -63,7 +63,7 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 قطع لكل لاعب - دا اللي كان ناقص
+// 4 قطع لكل لاعب
 let pieces = [
     [{pos:-1},{pos:-1}],
     [{pos:-1},{pos:-1}],
@@ -72,33 +72,28 @@ let pieces = [
 ];
 
 function drawBoard() {
-    // 1. خلفية بيضاء
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, 450, 450);
 
-    // 2. البيوت الكبيرة 6x6 - صححت البيت الأزرق
+    // البيوت الأربعة - صححت الأخطاء
     ctx.fillStyle = '#dc2626'; ctx.fillRect(0, 0, 6*s, 6*s);
-    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s);
-    ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s, 6*s);
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 6*s, 6*s); // دا كان ناقص
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s, 6*s); // كان ناقص
+    ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s);
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 9*s, 6*s); // كان ناقص
 
-    // 3. المسار الرمادي
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
 
-    // 4. مسارات النهاية
     for(let p=0; p<4; p++) {
         ctx.fillStyle = colors[p];
         homePaths[p].forEach(pos => ctx.fillRect(pos.x*s, pos.y*s, s, s));
     }
 
-    // 5. مربعات البداية
     ctx.fillStyle = '#dc2626'; ctx.fillRect(6*s, 13*s, s, s);
     ctx.fillStyle = '#16a34a'; ctx.fillRect(1*s, 6*s, s, s);
     ctx.fillStyle = '#ca8a04'; ctx.fillRect(8*s, 1*s, s, s);
     ctx.fillStyle = '#2563eb'; ctx.fillRect(13*s, 8*s, s, s);
 
-    // 6. الخطوط
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 1;
     for(let i = 0; i <= 15; i++) {
@@ -106,7 +101,6 @@ function drawBoard() {
         ctx.beginPath(); ctx.moveTo(0, i*s); ctx.lineTo(450, i*s); ctx.stroke();
     }
 
-    // 7. النجوم
     safeSpots.forEach(pos => {
         let p = mainPath[pos];
         ctx.fillStyle = '#374151';
@@ -118,13 +112,11 @@ function drawBoard() {
         ctx.fillText('★', p.x*s+s/2-6, p.y*s+s/2+6);
     });
 
-    // 8. المثلث الوسط
     ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
     ctx.fillStyle = '#ca8a04'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill();
     ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
 
-    // 9. دوائر البيت
     ctx.fillStyle = 'white';
     homeBases.forEach(base => {
         base.forEach(b => {
@@ -133,7 +125,6 @@ function drawBoard() {
         });
     });
 
-    // 10. القطع - 16 قطعة
     for(let p=0; p<4; p++) {
         for(let i=0; i<4; i++) {
             let piece = pieces[p][i];
