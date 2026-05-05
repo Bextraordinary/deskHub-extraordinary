@@ -156,10 +156,12 @@ function drawBoard() {
                 x = homePaths[p][homeIdx].x * s + s/2;
                 y = homePaths[p][homeIdx].y * s + s/2;
             } else {
-                let pos = (startPos[p] + piece.pos) % 52;
-                x = mainPath[pos].x * s + s/2;
-                y = mainPath[pos].y * s + s/2;
-            }
+        ctx.fillStyle = colors[p];
+ctx.beginPath(); ctx.arc(x, y, 10, 0, 2*Math.PI); ctx.fill();
+ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke();
+if(p === currentPlayer && canMove(p, i)) {
+    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 4; ctx.stroke();
+}       
             ctx.fillStyle = colors[p];
             ctx.beginPath();
             ctx.arc(x, y, 10, 0, 2*Math.PI);
