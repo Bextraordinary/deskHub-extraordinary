@@ -142,6 +142,16 @@ function drawBoard() {
         } else {
             // القطعة في المسار الرئيسي - مؤقتاً نخليها في البيت
             x = homeBases[p][i].x * s;
+                     y = homeBases[p][i].y * s;
+      }
+
+      ctx.fillStyle = colors[p];
+      ctx.beginPath();
+      ctx.arc(x * s + s/2, y * s + s/2, 12, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
             y = homeBases[p][i].y * s;
         }
 
