@@ -144,33 +144,43 @@ function drawBoard() {
 
     // رسم القطع
     for(let p=0; p<4; p++) {
-        for(let i=0; i<2; i++) {
-            let piece = pieces[p][i];
-            let x, y;
-            if(piece.pos === -1) {
-                x = homeBases[p][i].x * s;
-                y = homeBases[p][i].y * s;
-            }
-            if(piece.pos === -1) {
-    x = homeBases[p][i].x * s;
-    y = homeBases[p][i].y * s;
-} else if(piece.pos >= 100) {
-    let homeIdx = piece.pos - 100;
-    x = homePaths[p][homeIdx].x * s;
-    y = homePaths[p][homeIdx].y * s;
-} else {
-    // احداثيات القطع الفي الشارع - عدلها حسب كودك
-    x =...
-    y =...
-}
+        for(let p=0; p<4; p++) {
+    for(let i=0; i<4; i++) {
+        let piece = pieces[p][i];
+        let x, y;
 
-// ارسم القطعة هنا برة عشان تترسم في كل الحالات
-ctx.fillStyle = colors[p];
-ctx.beginPath();
-ctx.arc(x, y, 10, 0, 2*Math.PI);
-ctx.fill();
-ctx.strokeStyle = '#000';
-ctx.lineWidth = 1;
+        if(piece.pos === -1) {
+            // القطعة في البيت
+            x = homeBases[p][i].x * s;
+            y = homeBases[p][i].y * s;
+        } else if(piece.pos >= 100) {
+            // القطعة في مسار البيت
+            let homeIdx = piece.pos - 100;
+            x = homePaths[p][homeIdx].x * s;
+            y = homePaths[p][homeIdx].y * s;
+        } else {
+            // القطعة في المسار الرئيسي - مؤقتاً نخليها في البيت
+            x = homeBases[p][i].x * s;
+            y = homeBases[p][i].y * s;
+        }
+
+        // ارسم القطعة ملونة
+        ctx.fillStyle = colors[p];
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // إطار أصفر للقطعة الممكن تتحرك
+        if(p === currentPlayer && canMove(p, i)) {
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
+    }
+}
 ctx.stroke();
 if(p === currentPlayer && canMove(p, i)) {
     ctx.strokeStyle = '#fbbf24';
