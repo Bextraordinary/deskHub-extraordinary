@@ -163,13 +163,7 @@ if(p === currentPlayer && canMove(p, i)) {
     ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 4; ctx.stroke();
 }       
             ctx.fillStyle = colors[p];
-            ctx.beginPath();
-            ctx.arc(x, y, 10, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            if(p === currentPlayer && canMove(p, i)) {
+            ctx.beginPath(), i)) {
                 ctx.strokeStyle = '#fbbf24';
                 ctx.lineWidth = 4;
                 ctx.stroke();
