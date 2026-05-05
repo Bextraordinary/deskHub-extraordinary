@@ -56,18 +56,18 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 لاعبين × 4 قطع = 16 قطعة
+// 4 لاعبين × 2 قطع = 8 قطع مؤقتاً عشان ما يكسر
 let pieces = [
-    [{pos:-1},{pos:-1}], // أزرق
-    [{pos:-1},{pos:-1}], // أصفر
-    [{pos:-1},{pos:-1}], // أحمر
-    [{pos:-1},{pos:-1}] // أخضر
+    [{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}]
 ];
 
 function drawBoard() {
     ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 450, 450);
 
-    // البيوت الأربعة - كله صح هسي
+    // البيوت الأربعة - كلهم 4 باراميتر
     ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 6*s);
     ctx.fillStyle = colors[1]; ctx.fillRect(9*s, 0, 6*s, 6*s);
     ctx.fillStyle = colors[2]; ctx.fillRect(0, 9*s, 6*s, 6*s);
@@ -113,8 +113,9 @@ function drawBoard() {
         });
     });
 
+    // رسم قطعتين بس لكل لاعب حالياً
     for(let p=0; p<4; p++) {
-        for(let i=0; i<4; i++) {
+        for(let i=0; i<2; i++) {
             let piece = pieces[p][i];
             let x, y;
             if(piece.pos === -1) { x = homeBases[p][i].x * s; y = homeBases[p][i].y * s; }
@@ -150,7 +151,7 @@ function rollDice() {
     diceValue = Math.floor(Math.random()*6)+1;
     document.getElementById('dice').textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][diceValue-1];
     let canMoveAny = false;
-    for(let i=0; i<4; i++) if(canMove(currentPlayer, i)) canMoveAny = true;
+    for(let i=0; i<2; i++) if(canMove(currentPlayer, i)) canMoveAny = true;
     if(!canMoveAny) {
         document.getElementById('result').textContent = `مافي حركة! طلع ${diceValue}`;
         setTimeout(nextTurn, 1500);
@@ -173,7 +174,7 @@ function nextTurn() {
 function checkWin() {
     for(let p=0; p<4; p++) {
         let won = true;
-        for(let i=0; i<4; i++) { if(pieces[p][i].pos!== 105) won = false; }
+        for(let i=0; i<2; i++) { if(pieces[p][i].pos!== 105) won = false; }
         if(won) {
             document.getElementById('result').textContent = `🎉 مبروك! اللاعب ${players[p]} فاز!`;
             rollBtn.disabled = true;
@@ -186,7 +187,7 @@ canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) * (450/rect.width);
     const y = (e.clientY - rect.top) * (450/rect.height);
-    for(let i=0; i<4; i++) {
+    for(let i=0; i<2; i++) {
         let piece = pieces[currentPlayer][i];
         let px, py;
         if(piece.pos === -1) { px = homeBases[currentPlayer][i].x * s; py = homeBases[currentPlayer][i].y * s; }
@@ -204,7 +205,7 @@ canvas.addEventListener('click', (e) => {
                 if(!safeSpots.includes(currentPos)) {
                     for(let p=0; p<4; p++) {
                         if(p === currentPlayer) continue;
-                        for(let j=0; j<4; j++) {
+                        for(let j=0; j<2; j++) {
                             let other = pieces[p][j];
                             if(other.pos >= 0 && other.pos < 100) {
                                 let otherPos = (startPos[p] + other.pos) % 52;
