@@ -31,7 +31,6 @@ const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const rollBtn = document.getElementById('rollBtn');
 const s = 30;
-    // الألوان بأسماء واضحة
 const ازرق = '#1d4ed8';
 const اصفر = '#eab308';
 const احمر = '#dc2626';
@@ -39,6 +38,9 @@ const اخضر = '#16a34a';
 const colors = [ازرق, اصفر, احمر, اخضر];
 const players = ['ازرق', 'اصفر', 'احمر', 'اخضر'];
 let canRoll = true;
+let currentPlayer = 0;
+let diceValue = 0;
+
 const mainPath = [{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:14,y:8},{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14},{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6}];
 
 const homePaths = [
@@ -58,7 +60,6 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// قطعتين لكل لاعب
 let pieces = [
     [{pos:-1},{pos:-1}],
     [{pos:-1},{pos:-1}],
@@ -70,35 +71,24 @@ function drawBoard() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, 450, 450);
 
-    // البيوت الأربعة - كلهم صح هسي
-    ctx.fillStyle = ازرق;
-    ctx.fillRect(0, 0, 6*s, 6*s); // فوق يسار أزرق
+    ctx.fillStyle = ازرق; ctx.fillRect(0, 0, 6*s);
+    ctx.fillStyle = اصفر; ctx.fillRect(9*s, 0, 6*s, 6*s);
+    ctx.fillStyle = احمر; ctx.fillRect(0, 9*s, 6*s);
+    ctx.fillStyle = اخضر; ctx.fillRect(9*s, 9*s, 6*s);
 
-    ctx.fillStyle = اصفر;
-    ctx.fillRect(9*s, 0, 6*s, 6*s); // فوق يمين أصفر
-
-    ctx.fillStyle = احمر;
-    ctx.fillRect(0, 9*s, 6*s, 6*s); // تحت يسار أحمر
-
-    ctx.fillStyle = اخضر;
-    ctx.fillRect(9*s, 9*s, 6*s, 6*s); // تحت يمين أخضر
-    // المسار الرمادي
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p =>ctx.fillRect(p.x*s, p.y*s, s, s));
 
-    // مسارات البيت الملونة
     for(let p=0; p<4; p++) {
         ctx.fillStyle = colors[p];
         homePaths[p].forEach(pos => ctx.fillRect(pos.x*s, pos.y*s, s, s));
     }
 
-    // نقاط البداية
     ctx.fillStyle = ازرق; ctx.fillRect(1*s, 6*s, s, s);
     ctx.fillStyle = اصفر; ctx.fillRect(8*s, 1*s, s, s);
     ctx.fillStyle = احمر; ctx.fillRect(6*s, 13*s, s, s);
     ctx.fillStyle = اخضر; ctx.fillRect(13*s, 8*s, s, s);
 
-    // الشبكة السوداء
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 1;
     for(let i = 0; i <= 15; i++) {
@@ -106,7 +96,6 @@ function drawBoard() {
         ctx.beginPath(); ctx.moveTo(0, i*s); ctx.lineTo(450, i*s); ctx.stroke();
     }
 
-    // النجوم الآمنة
     safeSpots.forEach(pos => {
         let p = mainPath[pos];
         ctx.fillStyle = '#374151';
@@ -118,55 +107,43 @@ function drawBoard() {
         ctx.fillText('★', p.x*s+s/2-6, p.y*s+s/2+6);
     });
 
-    // المثلثات في النص
     ctx.fillStyle = اصفر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill();
     ctx.fillStyle = اخضر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = احمر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = ازرق; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
-// رسم القطع
-for(let p=0; p<4; p++) {
-   for(let i=0; i<4; i++) {
-      let piece = pieces[p][i];
-      let x, y;
 
-      if(piece.pos === -1) {
-         // في البيت
-         x = homeBases[p][i].x * s + s/2;
-         y = homeBases[p][i].y * s + s/2;
-      } else if(piece.pos >= 100) {
-         // وصل النهاية
-         x = endBases[p][piece.pos-100].x * s + s/2;
-         y = endBases[p][piece.pos-100].y * s + s/2;
-      } else {
-         // في المسار - مؤقتاً في البيت
-         x = homeBases[p][i].x * s + s/2;
-         y = homeBases[p][i].y * s + s/2;
-      }
+    for(let p=0; p<4; p++) {
+       for(let i=0; i<4; i++) {
+          let piece = pieces[p][i];
+          let x, y;
 
-      // رسم القطعة الملونة
-      ctx.fillStyle = colors[p];
-      ctx.beginPath();
-      ctx.arc(x, y, 12, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-   }
+          if(piece.pos === -1) {
+             x = homeBases[p][i].x * s + s/2;
+             y = homeBases[p][i].y * s + s/2;
+          } else if(piece.pos >= 100) {
+             x = homePaths[p][piece.pos-100].x * s + s/2;
+             y = homePaths[p][piece.pos-100].y * s + s/2;
+          } else {
+             let pos = (startPos[p] + piece.pos) % 52;
+             x = mainPath[pos].x * s + s/2;
+             y = mainPath[pos].y * s + s/2;
+          }
+
+          ctx.fillStyle = colors[p];
+          ctx.beginPath();
+          ctx.arc(x, y, 12, 0, 2*Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          if(p === currentPlayer && canMove(p, i)) {
+              ctx.strokeStyle = '#fbbf24';
+              ctx.lineWidth = 4;
+              ctx.stroke();
+          }
+       }
     }
-        // إطار أصفر للقطعة الممكن تتحرك
-        if(p === currentPlayer && canMove(p, i)) {
-            ctx.strokeStyle = '#fbbf24';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-        }
-    }
-}
-ctx.stroke();
-if(p === currentPlayer && canMove(p, i)) {
-    ctx.strokeStyle = '#fbbf24';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-}
 }
 
 function canMove(player, pieceIdx) {
@@ -182,7 +159,7 @@ function rollDice() {
     diceValue = Math.floor(Math.random()*6)+1;
     document.getElementById('dice').textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][diceValue-1];
     let canMoveAny = false;
-    for(let i=0; i<2; i++) if(canMove(currentPlayer, i)) canMoveAny = true;
+    for(let i=0; i<4; i++) if(canMove(currentPlayer, i)) canMoveAny = true;
     if(!canMoveAny) {
         document.getElementById('result').textContent = `مافي حركة! طلع ${diceValue}`;
         setTimeout(nextTurn, 1500);
@@ -209,7 +186,7 @@ function nextTurn() {
 function checkWin() {
     for(let p=0; p<4; p++) {
         let won = true;
-        for(let i=0; i<2; i++) {
+        for(let i=0; i<4; i++) {
             if(pieces[p][i].pos!== 105) won = false;
         }
         if(won) {
@@ -224,12 +201,12 @@ canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) * (450/rect.width);
     const y = (e.clientY - rect.top) * (450/rect.height);
-    for(let i=0; i<2; i++) {
+    for(let i=0; i<4; i++) {
         let piece = pieces[currentPlayer][i];
         let px, py;
         if(piece.pos === -1) {
-            px = homeBases[currentPlayer][i].x * s;
-            py = homeBases[currentPlayer][i].y * s;
+            px = homeBases[currentPlayer][i].x * s + s/2;
+            py = homeBases[currentPlayer][i].y * s + s/2;
         }
         else if(piece.pos >= 100) {
             let homeIdx = piece.pos - 100;
@@ -257,7 +234,7 @@ canvas.addEventListener('click', (e) => {
                 if(!safeSpots.includes(currentPos)) {
                     for(let p=0; p<4; p++) {
                         if(p === currentPlayer) continue;
-                        for(let j=0; j<2; j++) {
+                        for(let j=0; j<4; j++) {
                             let other = pieces[p][j];
                             if(other.pos >= 0 && other.pos < 100) {
                                 let otherPos = (startPos[p] + other.pos) % 52;
