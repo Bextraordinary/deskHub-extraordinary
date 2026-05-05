@@ -135,26 +135,32 @@ function drawBoard() {
             x = homeBases[p][i].x * s;
             y = homeBases[p][i].y * s;
         } else if(piece.pos >= 100) {
-            // القطعة في مسار البيت
-            let homeIdx = piece.pos - 100;
-            x = homePaths[p][homeIdx].x * s;
-            y = homePaths[p][homeIdx].y * s;
-        } else {
-            // القطعة في المسار الرئيسي - مؤقتاً نخليها في البيت
-            x = homeBases[p][i].x * s;
-                     y = homeBases[p][i].y * s;
-      }
+      // رسم القطع
+      for(let p=0; p<4; p++) {
+         for(let i=0; i<4; i++) {
+            let piece = pieces[p][i];
+            let x, y;
 
-      ctx.fillStyle = colors[p];
-      ctx.beginPath();
-      ctx.arc(x * s + s/2, y * s + s/2, 12, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-            y = homeBases[p][i].y * s;
-        }
+            if(piece.pos === -1) {
+               // في البيت
+               x = homeBases[p][i].x * s + s/2;
+               y = homeBases[p][i].y * s + s/2;
+            } else {
+               // مسار مؤقت - خليها في البيت لحدي ما نكمل المسار
+               x = homeBases[p][i].x * s + s/2;
+               y = homeBases[p][i].y * s + s/2;
+            }
 
+            // رسم القطعة الملونة 👇
+            ctx.fillStyle = colors[p];
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+         }
+          }
         // ارسم القطعة ملونة
         ctx.fillStyle = colors[p];
         ctx.beginPath();
