@@ -124,19 +124,6 @@ function drawBoard() {
     ctx.fillStyle = احمر; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
     ctx.fillStyle = ازرق; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
 
-    // الدوائر البيضاء في البيوت
-    ctx.fillStyle = 'white';
-    homeBases.forEach(base => {
-        base.forEach(b => {
-            ctx.beginPath();
-            ctx.arc(b.x*s, b.y*s, 14, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        });
-    });
-
     // رسم القطع
     for(let p=0; p<4; p++) {
     for(let i=0; i<4; i++) {
