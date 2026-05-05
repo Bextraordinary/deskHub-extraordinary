@@ -11,7 +11,7 @@
             font-family: 'Cairo', Arial, sans-serif;
             background: #0f172a; color: white; text-align: center; padding: 10px;
         }
-        h1 { font-size: 2rem; margin: 10px; text-shadow: 0 0 15px #38bdf8; }
+        h1 { font-size: 1.8rem; margin: 10px; text-shadow: 0 0 15px #38bdf8; }
         #game { background: #1e293b; border-radius: 20px; padding: 15px; max-width: 500px; margin: 0 auto; border: 3px solid #334155; }
         canvas { background: white; border-radius: 15px; border: 3px solid #38bdf8; display: block; margin: 10px auto; max-width: 100%; }
         button { background: #ef4444; color: white; border: none; padding: 14px 30px; font-size: 1.2rem; border-radius: 12px; cursor: pointer; margin: 8px; font-family: 'Cairo'; font-weight: bold; }
@@ -37,13 +37,13 @@ const ctx = canvas.getContext('2d');
 const rollBtn = document.getElementById('rollBtn');
 const colors = ['#dc2626', '#16a34a', '#ca8a04', '#2563eb'];
 const players = ['أحمر', 'أخضر', 'أصفر', 'أزرق'];
-const s = 30; // حجم المربع
+const s = 30;
 
 let currentPlayer = 0;
 let diceValue = 0;
 let canRoll = true;
 
-// المسار الصحيح للعبة الليدو الأصلية - 52 خانة
+// المسار الرئيسي 52 خانة
 const mainPath = [
     {x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6},
     {x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},
@@ -51,28 +51,24 @@ const mainPath = [
     {x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14}
 ];
 
-// مسارات النهاية لكل لون
 const homePaths = [
-    [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9},{x:7,y:8}], // أحمر
-    [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7},{x:6,y:7}], // أخضر
-    [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5},{x:7,y:6}], // أصفر
-    [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7},{x:8,y:7}] // أزرق
+    [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9},{x:7,y:8}],
+    [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7},{x:6,y:7}],
+    [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5},{x:7,y:6}],
+    [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7},{x:8,y:7}]
 ];
 
-// نقاط البداية لكل لون
 const startPos = [0, 13, 26, 39];
-
-// نجوم الأمان - زي الليدو الأصلي
 const safeSpots = [0, 8, 13, 21, 26, 34, 39, 47];
 
-// بيوت البداية
 const homeBases = [
-    [{x:2,y:2},{x:3,y:2},{x:2,y:3},{x:3,y:3}], // أحمر
-    [{x:2,y:11},{x:3,y:11},{x:2,y:12},{x:3,y:12}], // أخضر
-    [{x:11,y:11},{x:12,y:11},{x:11,y:12},{x:12,y:12}], // أصفر
-    [{x:11,y:2},{x:12,y:2},{x:11,y:3},{x:12,y:3}] // أزرق
+    [{x:1.5,y:1.5},{x:3.5,y:1.5},{x:1.5,y:3.5},{x:3.5,y:3.5}],
+    [{x:1.5,y:10.5},{x:3.5,y:10.5},{x:1.5,y:12.5},{x:3.5,y:12.5}],
+    [{x:10.5,y:1.5},{x:12.5,y:1.5},{x:10.5,y:3.5},{x:12.5,y:3.5}],
+    [{x:10.5,y:10.5},{x:12.5,y:10.5},{x:10.5,y:12.5},{x:12.5,y:12.5}]
 ];
 
+// 4 قطع لكل لاعب
 let pieces = [
     [{pos:-1},{pos:-1}],
     [{pos:-1},{pos:-1}],
@@ -82,54 +78,49 @@ let pieces = [
 
 function drawBoard() {
     ctx.clearRect(0, 0, 450, 450);
-
-    // رسم المربعات البيضاء كلها
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, 450, 450);
+
+    // الخطوط
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 1;
-
-    for(let i = 0; i < 15; i++) {
-        for(let j = 0; j < 15; j++) {
-            ctx.strokeRect(i*s, j*s, s, s);
-        }
+    for(let i = 0; i <= 15; i++) {
+        ctx.beginPath(); ctx.moveTo(i*s, 0); ctx.lineTo(i*s, 450); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i*s); ctx.lineTo(450, i*s); ctx.stroke();
     }
 
-    // تلوين المناطق
-    // أحمر
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(0*s, 9*s, 6*s);
-    ctx.fillRect(6*s, 13*s, s, s); // البداية
-    for(let i=0;i<6;i++) ctx.fillRect(7*s, (8+i)*s, s, s); // مسار النهاية
+    // تلوين المسار الرئيسي
+    ctx.fillStyle = '#f3f4f6';
+    mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
 
-    // أخضر
-    ctx.fillStyle = '#16a34a';
-    ctx.fillRect(0*s, 6*s, 6*s);
-    ctx.fillRect(1*s, 6*s, s, s); // البداية
-    for(let i=0;i<6;i++) ctx.fillRect((1+i)*s, 7*s, s, s);
+    // تلوين مسارات النهاية
+    for(let p=0; p<4; p++) {
+        ctx.fillStyle = colors[p];
+        homePaths[p].forEach(pos => ctx.fillRect(pos.x*s, pos.y*s, s, s));
+    }
 
-    // أصفر
-    ctx.fillStyle = '#ca8a04';
-    ctx.fillRect(9*s, 0*s, 6*s);
-    ctx.fillRect(8*s, 1*s, s, s); // البداية
-    for(let i=0;i<6;i++) ctx.fillRect(7*s, (1+i)*s, s, s);
+    // تلوين البيوت الكبيرة
+    ctx.fillStyle = '#dc2626'; ctx.fillRect(0, 0, 6*s);
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s);
+    ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s, 6*s);
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 9*s, 6*s, 6*s);
 
-    // أزرق
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(9*s, 9*s, 6*s);
-    ctx.fillRect(13*s, 8*s, s, s); // البداية
-    for(let i=0;i<6;i++) ctx.fillRect((8+i)*s, 7*s, s, s);
+    // مربعات البداية
+    ctx.fillStyle = '#dc2626'; ctx.fillRect(6*s, 13*s, s, s);
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(1*s, 6*s, s, s);
+    ctx.fillStyle = '#ca8a04'; ctx.fillRect(8*s, 1*s, s, s);
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(13*s, 8*s, s, s);
 
     // نجوم الأمان
     safeSpots.forEach(pos => {
         let p = mainPath[pos];
-        ctx.fillStyle = '#9ca3af';
+        ctx.fillStyle = '#6b7280';
         ctx.beginPath();
         ctx.arc(p.x*s+s/2, p.y*s+s/2, 8, 0, 2*Math.PI);
         ctx.fill();
-        ctx.fillStyle = '#000';
-        ctx.font = '12px Arial';
-        ctx.fillText('★', p.x*s+s/2-4, p.y*s+s/2+4);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('★', p.x*s+s/2-5, p.y*s+s/2+5);
     });
 
     // المثلث الوسط
@@ -138,6 +129,15 @@ function drawBoard() {
     ctx.fillStyle = '#ca8a04'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill();
     ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
 
+    // دوائر البيت البيضاء
+    ctx.fillStyle = 'white';
+    homeBases.forEach(base => {
+        base.forEach(b => {
+            ctx.beginPath(); ctx.arc(b.x*s, b.y*s, 15, 0, 2*Math.PI); ctx.fill();
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
+        });
+    });
+
     // رسم القطع
     for(let p=0; p<4; p++) {
         for(let i=0; i<4; i++) {
@@ -145,29 +145,24 @@ function drawBoard() {
             let x, y;
 
             if(piece.pos === -1) {
-                // في البيت
-                x = homeBases[p][i].x * s + s/2;
-                y = homeBases[p][i].y * s + s/2;
+                x = homeBases[p][i].x * s;
+                y = homeBases[p][i].y * s;
             } else if(piece.pos >= 100) {
-                // في مسار النهاية
                 let homeIdx = piece.pos - 100;
                 x = homePaths[p][homeIdx].x * s + s/2;
                 y = homePaths[p][homeIdx].y * s + s/2;
             } else {
-                // في المسار الرئيسي
                 let pos = (startPos[p] + piece.pos) % 52;
                 x = mainPath[pos].x * s + s/2;
                 y = mainPath[pos].y * s + s/2;
             }
 
-            // القطعة
             ctx.fillStyle = colors[p];
             ctx.beginPath(); ctx.arc(x, y, 11, 0, 2*Math.PI); ctx.fill();
             ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
 
-            // تمييز المتاحة
             if(p === currentPlayer && canMove(p, i)) {
-                ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 3; ctx.stroke();
+                ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 4; ctx.stroke();
             }
         }
     }
@@ -227,7 +222,6 @@ function checkWin() {
 
 canvas.addEventListener('click', (e) => {
     if(canRoll || diceValue === 0) return;
-
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) * (450/rect.width);
     const y = (e.clientY - rect.top) * (450/rect.height);
@@ -237,8 +231,8 @@ canvas.addEventListener('click', (e) => {
         let px, py;
 
         if(piece.pos === -1) {
-            px = homeBases[currentPlayer][i].x * s + s/2;
-            py = homeBases[currentPlayer][i].y * s + s/2;
+            px = homeBases[currentPlayer][i].x * s;
+            py = homeBases[currentPlayer][i].y * s;
         } else if(piece.pos >= 100) {
             let homeIdx = piece.pos - 100;
             px = homePaths[currentPlayer][homeIdx].x * s + s/2;
@@ -251,7 +245,6 @@ canvas.addEventListener('click', (e) => {
 
         let dist = Math.sqrt((x-px)**2 + (y-py)**2);
         if(dist < 15 && canMove(currentPlayer, i)) {
-            // حركة القطعة
             if(piece.pos === -1) {
                 piece.pos = 0;
             } else if(piece.pos < 100) {
@@ -261,7 +254,6 @@ canvas.addEventListener('click', (e) => {
                 piece.pos += diceValue;
             }
 
-            // أكل قطع الخصم
             if(piece.pos < 100) {
                 let currentPos = (startPos[currentPlayer] + piece.pos) % 52;
                 if(!safeSpots.includes(currentPos)) {
@@ -277,7 +269,6 @@ canvas.addEventListener('click', (e) => {
                     }
                 }
             }
-
             nextTurn();
             break;
         }
