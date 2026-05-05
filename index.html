@@ -86,7 +86,7 @@ function drawBoard() {
     ctx.fillRect(0, 9*s, 6*s, 6*s); // تحت يسار أحمر
 
     ctx.fillStyle = اخضر;
-    ctx.fillRect(9*s, 6*s, 0, 6*s); // تحت يمين أخضر
+    ctx.fillRect(9*s, 9*s, 6*s, 6*s); // تحت يمين أخضر
     // المسار الرمادي
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p =>ctx.fillRect(p.x*s, p.y*s, s, s));
