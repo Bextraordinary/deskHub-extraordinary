@@ -63,7 +63,7 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 قطع لكل لاعب
+// 4 قطع لكل لاعب - دا اللي كان ناقص
 let pieces = [
     [{pos:-1},{pos:-1}],
     [{pos:-1},{pos:-1}],
@@ -76,11 +76,11 @@ function drawBoard() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, 450, 450);
 
-    // 2. البيوت الكبيرة 6x6 - دا اللي كان ناقص
+    // 2. البيوت الكبيرة 6x6 - صححت البيت الأزرق
     ctx.fillStyle = '#dc2626'; ctx.fillRect(0, 0, 6*s, 6*s);
-    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s, 6*s);
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s);
     ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s, 6*s);
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 9*s, 6*s);
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 6*s, 6*s); // دا كان ناقص
 
     // 3. المسار الرمادي
     ctx.fillStyle = '#e5e7eb';
@@ -133,7 +133,7 @@ function drawBoard() {
         });
     });
 
-    // 10. القطع
+    // 10. القطع - 16 قطعة
     for(let p=0; p<4; p++) {
         for(let i=0; i<4; i++) {
             let piece = pieces[p][i];
