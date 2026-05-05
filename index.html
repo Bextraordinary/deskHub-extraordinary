@@ -56,19 +56,22 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 قطع لكل لاعب - دا كان الغلط القاتل
+// 4 لاعبين × 4 قطع = 16 قطعة
 let pieces = [
-    [{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}]
+    [{pos:-1},{pos:-1}], // أزرق
+    [{pos:-1},{pos:-1}], // أصفر
+    [{pos:-1},{pos:-1}], // أحمر
+    [{pos:-1},{pos:-1}] // أخضر
 ];
 
 function drawBoard() {
     ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 450, 450);
 
-    // البيوت الأربعة - كلهم 4 باراميتر هسي
-    ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 6*s, 6*s); // أزرق
-    ctx.fillStyle = colors[1]; ctx.fillRect(9*s, 0, 6*s, 6*s); // أصفر - صلحتها
-    ctx.fillStyle = colors[2]; ctx.fillRect(0, 9*s, 6*s, 6*s); // أحمر
-    ctx.fillStyle = colors[3]; ctx.fillRect(9*s, 9*s, 6*s); // أخضر - صلحتها
+    // البيوت الأربعة - كله صح هسي
+    ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 6*s);
+    ctx.fillStyle = colors[1]; ctx.fillRect(9*s, 0, 6*s, 6*s);
+    ctx.fillStyle = colors[2]; ctx.fillRect(0, 9*s, 6*s, 6*s);
+    ctx.fillStyle = colors[3]; ctx.fillRect(9*s, 6*s, 6*s);
 
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
