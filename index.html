@@ -2,32 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ليدو الاستثنائي 🎲</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
         body {
             font-family: 'Cairo', Arial, sans-serif;
             background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white; text-align: center; padding: 20px; min-height: 100vh;
+            color: white; text-align: center; padding: 10px; min-height: 100vh;
         }
-        h1 { font-size: 2.5rem; margin-bottom: 15px; text-shadow: 0 0 15px #38bdf8; }
-        #game {
-            background: #1e293b; border-radius: 20px; padding: 20px;
-            max-width: 500px; margin: 0 auto; border: 3px solid #334155;
-        }
-        canvas {
-            background: #0f172a; border-radius: 15px;
-            border: 3px solid #38bdf8; display: block; margin: 15px auto;
-        }
-        button {
-            background: #ef4444; color: white; border: none; padding: 15px 30px;
-            font-size: 1.2rem; border-radius: 12px; cursor: pointer;
-            margin: 10px; font-family: 'Cairo'; font-weight: bold;
-        }
-        button:hover { background: #dc2626; transform: scale(1.05); }
-        #dice { font-size: 3rem; margin: 10px; }
-        #turn { font-size: 1.3rem; color: #38bdf8; margin: 10px; }
+        h1 { font-size: 2rem; margin-bottom: 8px; text-shadow: 0 0 15px #38bdf8; }
+        #game { background: #1e293b; border-radius: 20px; padding: 12px; max-width: 480px; margin: 0 auto; border: 3px solid #334155; }
+        canvas { background: #0f172a; border-radius: 15px; border: 3px solid #38bdf8; display: block; margin: 8px auto; max-width: 100%; }
+        button { background: #ef4444; color: white; border: none; padding: 12px 25px; font-size: 1.1rem; border-radius: 12px; cursor: pointer; margin: 6px; font-family: 'Cairo'; font-weight: bold; }
+        button:disabled { background: #64748b; cursor: not-allowed; }
+        #dice { font-size: 3rem; margin: 5px; }
+        #turn { font-size: 1.1rem; margin: 5px; font-weight: bold; }
+        #result { font-size: 1rem; margin: 3px; color: #94a3b8; min-height: 20px; }
     </style>
 </head>
 <body>
@@ -36,26 +28,52 @@
         <div id="turn">الدور: اللاعب الأحمر</div>
         <canvas id="board" width="450" height="450"></canvas>
         <div id="dice">🎲</div>
-        <button onclick="rollDice()">ارمي النرد</button>
-        <div id="result"></div>
+        <button id="rollBtn" onclick="rollDice()">ارمي النرد</button>
+        <div id="result">ارمي 6 عشان تطلع</div>
     </div>
 
 <script>
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
+const rollBtn = document.getElementById('rollBtn');
 const colors = ['#ef4444', '#22c55e', '#eab308', '#3b82f6'];
 const players = ['أحمر', 'أخضر', 'أصفر', 'أزرق'];
+const s = 30; // حجم المربع
+
 let currentPlayer = 0;
-let diceValue = 1;
+let diceValue = 0;
+let canRoll = true;
+let selectedPiece = null;
 
-// رسم رقعة الليدو
+// مسارات اللاعبين الأربعة
+const paths = [
+    // أحمر
+    [{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:14,y:8},{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14},{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7},{x:6,y:7}],
+    // أخضر
+    [{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:14,y:8},{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14},{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6},{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5},{x:7,y:6}],
+    // أصفر
+    [{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14},{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6},{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7},{x:8,y:7}],
+    // أزرق
+    [{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6},{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:14,y:8},{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9},{x:7,y:8}]
+];
+
+// بيوت البداية
+const homes = [
+    [{x:2,y:2},{x:3,y:2},{x:2,y:3},{x:3,y:3}],
+    [{x:11,y:2},{x:12,y:2},{x:11,y:3},{x:12,y:3}],
+    [{x:11,y:11},{x:12,y:11},{x:11,y:12},{x:12,y:12}],
+    [{x:2,y:11},{x:3,y:11},{x:2,y:12},{x:3,y:12}]
+];
+
+let pieces = [
+    [{pos:-1},{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}],
+    [{pos:-1},{pos:-1}]
+];
+
 function drawBoard() {
-    const size = 30;
     ctx.clearRect(0, 0, 450, 450);
-
-    // الخلفية
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0, 0, 450, 450);
 
     // المناطق الملونة
     ctx.fillStyle = '#ef4444'; ctx.fillRect(0, 0, 180, 180);
@@ -64,53 +82,159 @@ function drawBoard() {
     ctx.fillStyle = '#3b82f6'; ctx.fillRect(270, 270, 180, 180);
 
     // الممرات
-    ctx.fillStyle = '#334155';
+    ctx.fillStyle = '#1e293b';
     for(let i = 0; i < 15; i++) {
-        ctx.fillRect(180, i * 30, 90, 30);
-        ctx.fillRect(i * 30, 180, 30, 90);
+        ctx.fillRect(180, i*s, 90, s);
+        ctx.fillRect(i*s, 180, s, 90);
     }
 
-    // المثلث الوسط
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath(); ctx.moveTo(225, 225); ctx.lineTo(180, 180); ctx.lineTo(270, 180); ctx.fill();
-    ctx.fillStyle = '#22c55e';
-    ctx.beginPath(); ctx.moveTo(225, 225); ctx.lineTo(270, 180); ctx.lineTo(270, 270); ctx.fill();
-    ctx.fillStyle = '#3b82f6';
-    ctx.beginPath(); ctx.moveTo(225, 225); ctx.lineTo(270, 270); ctx.lineTo(180, 270); ctx.fill();
-    ctx.fillStyle = '#eab308';
-    ctx.beginPath(); ctx.moveTo(225, 225); ctx.lineTo(180, 270); ctx.lineTo(180, 180); ctx.fill();
+    // خطوط
+    ctx.strokeStyle = '#475569';
+    for(let i = 0; i <= 15; i++) {
+        ctx.beginPath(); ctx.moveTo(180, i*s); ctx.lineTo(270, i*s); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i*s, 180); ctx.lineTo(i*s, 270); ctx.stroke();
+    }
 
-    // بيوت اللاعبين
-    drawHome(60, 60, '#ef4444');
-    drawHome(330, 60, '#22c55e');
-    drawHome(60, 330, '#eab308');
-    drawHome(330, 330, '#3b82f6');
-}
+    // الوسط
+    ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(225,225); ctx.lineTo(180,180); ctx.lineTo(270,180); ctx.fill();
+    ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.moveTo(225,225); ctx.lineTo(270,180); ctx.lineTo(270,270); ctx.fill();
+    ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.moveTo(225,225); ctx.lineTo(270,270); ctx.lineTo(180,270); ctx.fill();
+    ctx.fillStyle = '#eab308'; ctx.beginPath(); ctx.moveTo(225,225); ctx.lineTo(180,270); ctx.lineTo(180,180); ctx.fill();
 
-function drawHome(x, y, color) {
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x-45, y-45, 90, 90);
-    ctx.fillStyle = color;
-    for(let i = 0; i < 2; i++) {
-        for(let j = 0; j < 2; j++) {
-            ctx.beginPath();
-            ctx.arc(x-20+i*40, y-20+j*40, 15, 0, 2*Math.PI);
-            ctx.fill();
+    // نجوم الأمان
+    drawStar(1,6); drawStar(8,1); drawStar(13,8); drawStar(6,13);
+
+    // رسم القطع
+    for(let p=0; p<4; p++) {
+        for(let i=0; i<4; i++) {
+            let piece = pieces[p][i];
+            let x, y;
+            if(piece.pos === -1) {
+                x = homes[p][i].x * s + s/2;
+                y = homes[p][i].y * s + s/2;
+            } else {
+                x = paths[p][piece.pos].x * s + s/2;
+                y = paths[p][piece.pos].y * s + s/2;
+            }
+
+            ctx.fillStyle = colors[p];
+            ctx.beginPath(); ctx.arc(x, y, 12, 0, 2*Math.PI); ctx.fill();
+            ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+
+            // تمييز القطع المتاحة
+            if(p === currentPlayer && canMove(p, i)) {
+                ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 3; ctx.stroke();
+            }
         }
     }
 }
 
-function rollDice() {
-    diceValue = Math.floor(Math.random() * 6) + 1;
-    document.getElementById('dice').textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][diceValue-1];
-    document.getElementById('result').textContent = `طلع ليك: ${diceValue}`;
+function drawStar(x,y) {
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath(); ctx.arc(x*s+s/2, y*s+s/2, 6, 0, 2*Math.PI); ctx.fill();
+}
 
-    if(diceValue!== 6) {
-        currentPlayer = (currentPlayer + 1) % 4;
+function canMove(player, pieceIdx) {
+    if(diceValue === 0) return false;
+    let piece = pieces[player][pieceIdx];
+    if(piece.pos === -1) return diceValue === 6;
+    if(piece.pos + diceValue >= paths[player].length) return false;
+    return true;
+}
+
+function rollDice() {
+    if(!canRoll) return;
+    diceValue = Math.floor(Math.random()*6)+1;
+    document.getElementById('dice').textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][diceValue-1];
+
+    let canMoveAny = false;
+    for(let i=0; i<4; i++) if(canMove(currentPlayer, i)) canMoveAny = true;
+
+    if(!canMoveAny) {
+        document.getElementById('result').textContent = `مافي حركة! طلع ${diceValue}`;
+        setTimeout(nextTurn, 1500);
+    } else {
+        document.getElementById('result').textContent = `طلع ${diceValue} - اختار قطعة`;
+        canRoll = false;
+        rollBtn.disabled = true;
     }
+    drawBoard();
+}
+
+function nextTurn() {
+    if(diceValue!== 6) currentPlayer = (currentPlayer+1)%4;
+    diceValue = 0;
+    canRoll = true;
+    rollBtn.disabled = false;
     document.getElementById('turn').textContent = `الدور: اللاعب ${players[currentPlayer]}`;
     document.getElementById('turn').style.color = colors[currentPlayer];
+    document.getElementById('result').textContent = 'ارمي النرد';
+    drawBoard();
+    checkWin();
 }
+
+function checkWin() {
+    for(let p=0; p<4; p++) {
+        let won = true;
+        for(let i=0; i<4; i++) {
+            if(pieces[p][i].pos!== paths[p].length-1) won = false;
+        }
+        if(won) {
+            document.getElementById('result').textContent = `🎉 مبروك! اللاعب ${players[p]} فاز!`;
+            rollBtn.disabled = true;
+        }
+    }
+}
+
+canvas.addEventListener('click', (e) => {
+    if(canRoll || diceValue === 0) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (450/rect.width);
+    const y = (e.clientY - rect.top) * (450/rect.height);
+
+    for(let i=0; i<4; i++) {
+        let piece = pieces[currentPlayer][i];
+        let px, py;
+        if(piece.pos === -1) {
+            px = homes[currentPlayer][i].x * s + s/2;
+            py = homes[currentPlayer][i].y * s + s/2;
+        } else {
+            px = paths[currentPlayer][piece.pos].x * s + s/2;
+            py = paths[currentPlayer][piece.pos].y * s + s/2;
+        }
+
+        let dist = Math.sqrt((x-px)**2 + (y-py)**2);
+        if(dist < 15 && canMove(currentPlayer, i)) {
+            // حركة القطعة
+            if(piece.pos === -1) {
+                piece.pos = 0;
+            } else {
+                piece.pos += diceValue;
+            }
+
+            // أكل قطع الخصم
+            if(piece.pos < paths[currentPlayer].length-6) {
+                let currentPos = paths[currentPlayer][piece.pos];
+                for(let p=0; p<4; p++) {
+                    if(p === currentPlayer) continue;
+                    for(let j=0; j<4; j++) {
+                        let other = pieces[p][j];
+                        if(other.pos >= 0 && other.pos < paths[p].length-6) {
+                            let otherPos = paths[p][other.pos];
+                            if(otherPos.x === currentPos.x && otherPos.y === currentPos.y) {
+                                other.pos = -1; // رجع البيت
+                            }
+                        }
+                    }
+                }
+            }
+
+            nextTurn();
+            break;
+        }
+    }
+});
 
 drawBoard();
 </script>
