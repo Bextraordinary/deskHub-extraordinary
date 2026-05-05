@@ -63,7 +63,6 @@ const homeBases = [
     [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 قطع لكل لاعب
 let pieces = [
     [{pos:-1},{pos:-1}],
     [{pos:-1},{pos:-1}],
@@ -75,11 +74,11 @@ function drawBoard() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, 450, 450);
 
-    // البيوت الأربعة - صححت الأخطاء
+    // البيوت الأربعة - دا الصح
     ctx.fillStyle = '#dc2626'; ctx.fillRect(0, 0, 6*s, 6*s);
-    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s, 6*s); // كان ناقص
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 9*s, 6*s, 6*s);
     ctx.fillStyle = '#ca8a04'; ctx.fillRect(9*s, 0, 6*s);
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 9*s, 6*s); // كان ناقص
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(9*s, 9*s, 6*s);
 
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
