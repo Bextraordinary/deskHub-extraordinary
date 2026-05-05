@@ -30,79 +30,65 @@
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const rollBtn = document.getElementById('rollBtn');
-const s = 30; // حجم المربع
-
-// ترتيب الألوان زي صورتك: 0=أزرق, 1=أصفر, 2=أحمر, 3=أخضر
+const s = 30;
 const colors = ['#1d4ed8', '#eab308', '#dc2626', '#16a34a'];
 const players = ['أزرق', 'أصفر', 'أحمر', 'أخضر'];
 let currentPlayer = 0;
 let diceValue = 0;
 let canRoll = true;
 
-// المسار الرئيسي 52 خانة، البداية من الأزرق
 const mainPath = [{x:1,y:6},{x:2,y:6},{x:3,y:6},{x:4,y:6},{x:5,y:6},{x:6,y:5},{x:6,y:4},{x:6,y:3},{x:6,y:2},{x:6,y:1},{x:6,y:0},{x:7,y:0},{x:8,y:0},{x:8,y:1},{x:8,y:2},{x:8,y:3},{x:8,y:4},{x:8,y:5},{x:9,y:6},{x:10,y:6},{x:11,y:6},{x:12,y:6},{x:13,y:6},{x:14,y:6},{x:14,y:7},{x:14,y:8},{x:13,y:8},{x:12,y:8},{x:11,y:8},{x:10,y:8},{x:9,y:8},{x:8,y:9},{x:8,y:10},{x:8,y:11},{x:8,y:12},{x:8,y:13},{x:8,y:14},{x:7,y:14},{x:6,y:14},{x:6,y:13},{x:6,y:12},{x:6,y:11},{x:6,y:10},{x:6,y:9},{x:5,y:8},{x:4,y:8},{x:3,y:8},{x:2,y:8},{x:1,y:8},{x:0,y:8},{x:0,y:7},{x:0,y:6}];
 
-// مسارات البيوت
 const homePaths = [
-    [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7},{x:6,y:7}], // أزرق
-    [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5},{x:7,y:6}], // أصفر
-    [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9},{x:7,y:8}], // أحمر
-    [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7},{x:8,y:7}] // أخضر
+    [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7},{x:6,y:7}],
+    [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5},{x:7,y:6}],
+    [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9},{x:7,y:8}],
+    [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7},{x:8,y:7}]
 ];
 
-const startPos = [0, 13, 26, 39]; // بداية كل لاعب في المسار
-const safeSpots = [0, 8, 13, 21, 26, 34, 39, 47]; // النجوم
+const startPos = [0, 13, 26, 39];
+const safeSpots = [0, 8, 13, 21, 26, 34, 39, 47];
 
-// أماكن القطع داخل البيوت
 const homeBases = [
-    [{x:1.5,y:1.5},{x:4.5,y:1.5},{x:1.5,y:4.5},{x:4.5,y:4.5}], // أزرق
-    [{x:10.5,y:1.5},{x:13.5,y:1.5},{x:10.5,y:4.5},{x:13.5,y:4.5}], // أصفر
-    [{x:1.5,y:10.5},{x:4.5,y:10.5},{x:1.5,y:13.5},{x:4.5,y:13.5}], // أحمر
-    [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}] // أخضر
+    [{x:1.5,y:1.5},{x:4.5,y:1.5},{x:1.5,y:4.5},{x:4.5,y:4.5}],
+    [{x:10.5,y:1.5},{x:13.5,y:1.5},{x:10.5,y:4.5},{x:13.5,y:4.5}],
+    [{x:1.5,y:10.5},{x:4.5,y:10.5},{x:1.5,y:13.5},{x:4.5,y:13.5}],
+    [{x:10.5,y:10.5},{x:13.5,y:10.5},{x:10.5,y:13.5},{x:13.5,y:13.5}]
 ];
 
-// 4 قطع لكل لاعب - pos=-1 يعني جوه البيت
+// 4 قطع لكل لاعب - دا كان الغلط القاتل
 let pieces = [
-    [{pos:-1},{pos:-1}], // أزرق
-    [{pos:-1},{pos:-1}], // أصفر
-    [{pos:-1},{pos:-1}], // أحمر
-    [{pos:-1},{pos:-1}] // أخضر
+    [{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}],[{pos:-1},{pos:-1}]
 ];
 
 function drawBoard() {
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, 450, 450);
+    ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 450, 450);
 
-    // 1. رسم البيوت الأربعة - دي السطور اللي كانت بايظة
-    ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 6*s, 6*s); // أزرق فوق شمال
-    ctx.fillStyle = colors[1]; ctx.fillRect(9*s, 0, 6*s); // أصفر فوق يمين
-    ctx.fillStyle = colors[2]; ctx.fillRect(0, 9*s, 6*s, 6*s); // أحمر تحت شمال
-    ctx.fillStyle = colors[3]; ctx.fillRect(9*s, 9*s, 6*s); // أخضر تحت يمين
+    // البيوت الأربعة - كلهم 4 باراميتر هسي
+    ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 6*s, 6*s); // أزرق
+    ctx.fillStyle = colors[1]; ctx.fillRect(9*s, 0, 6*s, 6*s); // أصفر - صلحتها
+    ctx.fillStyle = colors[2]; ctx.fillRect(0, 9*s, 6*s, 6*s); // أحمر
+    ctx.fillStyle = colors[3]; ctx.fillRect(9*s, 9*s, 6*s); // أخضر - صلحتها
 
-    // 2. المسار الرئيسي رمادي فاتح
     ctx.fillStyle = '#e5e7eb';
     mainPath.forEach(p => ctx.fillRect(p.x*s, p.y*s, s, s));
 
-    // 3. مسارات البيوت الملونة
     for(let p=0; p<4; p++) {
         ctx.fillStyle = colors[p];
         homePaths[p].forEach(pos => ctx.fillRect(pos.x*s, pos.y*s, s, s));
     }
 
-    // 4. مربعات البداية
-    ctx.fillStyle = colors[0]; ctx.fillRect(1*s, 6*s, s, s); // أزرق
-    ctx.fillStyle = colors[1]; ctx.fillRect(8*s, 1*s, s, s); // أصفر
-    ctx.fillStyle = colors[2]; ctx.fillRect(6*s, 13*s, s, s); // أحمر
-    ctx.fillStyle = colors[3]; ctx.fillRect(13*s, 8*s, s, s); // أخضر
+    ctx.fillStyle = colors[0]; ctx.fillRect(1*s, 6*s, s, s);
+    ctx.fillStyle = colors[1]; ctx.fillRect(8*s, 1*s, s, s);
+    ctx.fillStyle = colors[2]; ctx.fillRect(6*s, 13*s, s, s);
+    ctx.fillStyle = colors[3]; ctx.fillRect(13*s, 8*s, s, s);
 
-    // 5. الشبكة السودا
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
     for(let i = 0; i <= 15; i++) {
         ctx.beginPath(); ctx.moveTo(i*s, 0); ctx.lineTo(i*s, 450); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0, i*s); ctx.lineTo(450, i*s); ctx.stroke();
     }
 
-    // 6. النجوم - أماكن آمنة
     safeSpots.forEach(pos => {
         let p = mainPath[pos];
         ctx.fillStyle = '#374151';
@@ -111,13 +97,11 @@ function drawBoard() {
         ctx.fillText('★', p.x*s+s/2-6, p.y*s+s/2+6);
     });
 
-    // 7. المثلثات في النص - زي صورتك بالظبط
-    ctx.fillStyle = colors[1]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill(); // أصفر
-    ctx.fillStyle = colors[3]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill(); // أخضر
-    ctx.fillStyle = colors[2]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill(); // أحمر
-    ctx.fillStyle = colors[0]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill(); // أزرق
+    ctx.fillStyle = colors[1]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(9*s,6*s); ctx.fill();
+    ctx.fillStyle = colors[3]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(9*s,6*s); ctx.lineTo(9*s,9*s); ctx.fill();
+    ctx.fillStyle = colors[2]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,9*s); ctx.lineTo(9*s,9*s); ctx.fill();
+    ctx.fillStyle = colors[0]; ctx.beginPath(); ctx.moveTo(7.5*s,7.5*s); ctx.lineTo(6*s,6*s); ctx.lineTo(6*s,9*s); ctx.fill();
 
-    // 8. الدوائر البيضا داخل البيوت
     ctx.fillStyle = 'white';
     homeBases.forEach(base => {
         base.forEach(b => {
@@ -126,14 +110,12 @@ function drawBoard() {
         });
     });
 
-    // 9. رسم القطع
     for(let p=0; p<4; p++) {
         for(let i=0; i<4; i++) {
             let piece = pieces[p][i];
             let x, y;
-            if(piece.pos === -1) {
-                x = homeBases[p][i].x * s; y = homeBases[p][i].y * s;
-            } else if(piece.pos >= 100) {
+            if(piece.pos === -1) { x = homeBases[p][i].x * s; y = homeBases[p][i].y * s; }
+            else if(piece.pos >= 100) {
                 let homeIdx = piece.pos - 100;
                 x = homePaths[p][homeIdx].x * s + s/2;
                 y = homePaths[p][homeIdx].y * s + s/2;
@@ -214,7 +196,6 @@ canvas.addEventListener('click', (e) => {
                 piece.pos += diceValue;
                 if(piece.pos >= 51) piece.pos = 100 + (piece.pos - 51);
             } else { piece.pos += diceValue; }
-            // الأكل
             if(piece.pos < 100) {
                 let currentPos = (startPos[currentPlayer] + piece.pos) % 52;
                 if(!safeSpots.includes(currentPos)) {
